@@ -1,0 +1,4 @@
+static/images/thumbnails/*.jpg
+static/images/thumbnails/*.png
+bin/moviego
+bin/moviegosetup

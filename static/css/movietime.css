@@ -1,0 +1,43 @@
+#fs {
+	display: block;
+	margin-top: 25px;
+	
+}
+
+#movbut, #tvbut {
+	display: block;
+	height: 200px;
+	margin-top: -1px;
+}
+
+
+#playBtn, #pauseBtn, #nextBtn, #prevBtn, #stopBtn, #pChapterBtn, #nChapterBtn {
+	display: block;
+	height: 5em;
+
+}
+
+
+.blkAImg, .blkBImg, .blkCImg, .blkDImg {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	height: 200px;
+	width: 90%:
+}
+
+
+#introimg, #movimg, #tvimg {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	height: 140px;
+	width: 65%:
+}
+
+.title, .year {
+	display: block;
+	margin-right: auto;
+	margin-left: auto;
+	width: 75%;
+}

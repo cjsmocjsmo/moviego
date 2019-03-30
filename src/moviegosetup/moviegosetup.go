@@ -38,152 +38,6 @@ func IsEmptyDir(name string) (bool, error) {
 	return len(entries) == 0, nil
 }
 
-/*func get_movie_year(apath string) (movyr string) {
-	_, filename := path.Split(apath)
-	fi := strings.Index(filename, "(")
-	fdex := fi + 1
-	ldex := strings.LastIndex(filename, ")")
-	movyr = filename[fdex:ldex]
-	return
-}*/
-
-/*func Get_mov_name(fname string) string {
-    var mov_name string = ""
-    if strings.Contains(fname, "(") {
-	   fi := strings.Index(fname, "(")
-	   fdex := fi - 1
-	   mov_name = fname[:fdex]
-    } else {
-        ddex := len(fname) - 11
-        mov_name = fname[ddex:]
-        fmt.Println("this is mov_name")
-        fmt.Println(mov_name)
-    }
-	return mov_name
-}*/
-
-/*func get_gen(apath string) (CAT string) {
-	switch {
-		case strings.Contains(apath, "usb"):
-			CAT = "usb"
-		case strings.Contains(apath, "Movies"):
-			CAT = "Movies"
-		case strings.Contains(apath, "TVShows"):
-			CAT = "TVShows"	
-	}
-	return
-}*/
-
-/*func get_movie_cat(apath string) (Mov_Cat string) {
-	switch {
-		case strings.Contains(apath, "SciFi"):	
-			Mov_Cat = "SciFi"
-		case strings.Contains(apath, "Cartoons"):
-			Mov_Cat = "Cartoons"
-		case strings.Contains(apath, "Godzilla"):
-			Mov_Cat = "Godzilla"
-		case strings.Contains(apath, "Kingsman"):
-			Mov_Cat = "Kingsman"	
-		case strings.Contains(apath, "StarTrek") && !strings.Contains(apath, " STTV "):
-			Mov_Cat = "StarTrek"
-		case strings.Contains(apath, "StarWars"):
-			Mov_Cat = "StarWars"
-		case strings.Contains(apath, "SuperHeros"):
-			Mov_Cat = "SuperHeros"
-		case strings.Contains(apath, "IndianaJones"):
-			Mov_Cat = "IndianaJones"
-		case strings.Contains(apath, "Action"):
-			Mov_Cat = "Action"
-		case strings.Contains(apath, "Comedy"):
-			Mov_Cat = "Comedy"
-		case strings.Contains(apath, "Drama"):
-			Mov_Cat = "Drama"
-        case strings.Contains(apath, "Jurassic Park"):
-			Mov_Cat = "Jurassic Park"
-		case strings.Contains(apath, "John Wayne"):		
-			Mov_Cat = "John Wayne"
-		case strings.Contains(apath, "John Wick"):
-			Mov_Cat = "John Wick"
-        case strings.Contains(apath, "Men In Black"):
-			Mov_Cat = "Men In Black"
-		case strings.Contains(apath, "Harry Potter"):
-			Mov_Cat = "Harry Potter"
-        case strings.Contains(apath, "Tremors"):
-			Mov_Cat = "Tremors"
-		case strings.Contains(apath, "Misc"):
-			Mov_Cat = "Misc"
-		default:
-			Mov_Cat = "Misc"
-	}
-	return
-}*/
-		
-/*
-func get_usb_cat(apath string) (Usb_Cat string) {
-	switch {
-		case strings.Contains(apath, "SciFi"):
-			Usb_Cat = "SciFi"
-		case strings.Contains(apath, "Drama"):
-			Usb_Cat = "Drama"
-		case strings.Contains(apath, "Action"):
-			Usb_Cat = "Action"
-		case strings.Contains(apath, "Comedy"):
-			Usb_Cat = "Comedy"
-		case strings.Contains(apath, "Men In Black"):
-			Usb_Cat = "Men In Black"
-		case strings.Contains(apath, "Harry Potter"):
-			Usb_Cat = "Harry Potter"
-		case strings.Contains(apath, "Tremors"):
-			Usb_Cat = "Tremors"
-		case strings.Contains(apath, "Jurassic Park"):
-			Usb_Cat = "Jurassic Park"
-		case strings.Contains(apath, "John Wayne"):		
-			Usb_Cat = "John Wayne"
-		case strings.Contains(apath, "John Wick"):
-			Usb_Cat = "John Wick"
-		case strings.Contains(apath, "Misc"):
-			Usb_Cat = "Misc"
-		default:
-			Usb_Cat = "Misc"
-	}
-	return
-}
-*/
-
-
-
-
-
-
-
-
-/*type MOVI struct {
-	Id bson.ObjectId `bson:"_id,omitempty"`
-	DirPath string `bson: "dirpath"`
-	Filepath string `bson: "filepath"`
-	MediaId string `bson: "mediaid"`
-	Movname string `bson: "movname"`
-	Genre string `bson: "genre"`
-	Catagory string `bson: "catagory"`
-	MovPicPath string `bson: "movpicpath"`
-	ThumbPath string `bson: "thumbpath"`
-	MovYear string `bson: "movyear"`
-}*/
-
-/*func Get_mov_name(fname string) string {
-    var mov_name string = ""
-    if strings.Contains(fname, "(") {
-	   fi := strings.Index(fname, "(")
-	   fdex := fi - 1
-	   mov_name = fname[:fdex]
-    } else {
-        ddex := len(fname) - 11
-        mov_name = fname[ddex:]
-    }
-	return mov_name
-}*/
-
-
 func Process_Movs(pAth string) {
 	var Mov_picpath string = moviegolib.FindPicPaths(pAth, NO_ART_PIC_PATH)
 	var Mov_picinfo string = moviegolib.CreateMoviesThumbnail(Mov_picpath)
@@ -225,9 +79,6 @@ func Process_usb_movs(pAth string) {
 	}
 	return 
 }
-
-
-
 
 func Process_tvshow_info(pAth string) {
     var tvshow_picpath string = moviegolib.FindPicPaths(pAth, NO_ART_PIC_PATH)
@@ -283,11 +134,8 @@ func my_usb_dir_visit(pAth string, f os.FileInfo, err error) error {
     return nil
 }
 
-
-
 func main() {
-	start_time := time.Now().Unix()
-	
+	start_time := time.Now().Unix()	
 	sess := DBcon()
 	defer sess.Close()
 	err := sess.DB("moviego").DropDatabase()

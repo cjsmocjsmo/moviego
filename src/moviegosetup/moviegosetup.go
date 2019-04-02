@@ -144,6 +144,12 @@ func main() {
 	}
 	fmt.Println("Database has been droped")
 	
+    if _, err := os.Stat("./static/images/thumbnails" ); err != nil {
+        if os.IsNotExist(err) {
+            os.MkdirAll("./static/images/thumbnails", 0755)
+        }
+    }
+	
 	empty, err := IsEmptyDir("./static/images/thumbnails")
 	if err != nil {
 		fmt.Println(err)	

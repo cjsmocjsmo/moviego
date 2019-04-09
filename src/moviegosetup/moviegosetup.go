@@ -3,13 +3,13 @@
 import (
 	"os"
 	"fmt"
-	"path"
+//	"path"
 	"time"
 	"strings"
 	"io/ioutil"
 	"path/filepath"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+//	"gopkg.in/mgo.v2/bson"
 	"moviegosetup/libsetup"
 )
 
@@ -55,29 +55,19 @@ func Process_Movs(pAth string) {
 }
 
 func Process_usb_movs(pAth string) {
-	dirp, fname := path.Split(pAth)
-	var movname string = moviegolib.Get_mov_name(fname)
-	var Usb_picpath string = moviegolib.FindPicPaths(pAth, NO_ART_PIC_PATH)
-	var Usb_picinfo string = moviegolib.CreateMoviesThumbnail(Usb_picpath)
-	Usb_Mov_Info := moviegolib.MOVI{Id: bson.NewObjectId(),
-		DirPath: dirp,
-		Filepath: pAth,
-		MediaId: moviegolib.UUID(),
-		Movname: movname,
-		Genre: "fart",
-		Catagory: "Old",
-		MovPicPath: Usb_picpath,
-		ThumbPath: Usb_picinfo,
-		MovYear: "1999",
-	}
+    var Mov_picpath string = moviegolib.FindPicPaths(pAth, NO_ART_PIC_PATH)
+	var Mov_picinfo string = moviegolib.CreateMoviesThumbnail(Mov_picpath)
+	var MovI moviegolib.MOVI
+	MovI = moviegolib.Get_movie_info(pAth, Mov_picpath, Mov_picinfo)
+
 	ses := DBcon()
 	defer ses.Close()	
-	USBc := ses.DB("moviego").C("moviego")
-	err := USBc.Insert(&Usb_Mov_Info)
+	MTc := ses.DB("moviego").C("moviego")
+	err := MTc.Insert(&MovI)
 	if err != nil {
 		fmt.Println(err)
 	}
-	return 
+	return
 }
 
 func Process_tvshow_info(pAth string) {

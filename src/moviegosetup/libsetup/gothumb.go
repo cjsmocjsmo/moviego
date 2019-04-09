@@ -17,7 +17,7 @@ import (
 )
 
 const (
-    PIC_PATH string = "/nfs/home/charlie//Pictures/"
+    PIC_PATH string = "/nfs/home/charlie/Pictures/"
 )
 
 func FS(fi string) string {

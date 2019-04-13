@@ -70,7 +70,7 @@ function initAction() {
 				$('#actionMain').append(Actionarr1);
 			})
 		})
-		$.mobile.loading("hide");
+		/*  $.mobile.loading("hide");*/
 	}
 };
 
@@ -256,22 +256,25 @@ function initMenInBlack() {
 
 var initMtime = function () {
 	$("#foo3, #foo4, #doneBtn, #update2, #playerControls").hide();
-	initSciFi();
-	initAction();
+//	initSciFi();
+/*	initAction();
 	initComedy();
 	initDrama();
-	initCartoons();
+	initCartoons();*/
 /*	initKingsman();
 	initGodzilla();*/
-	initStarTrek();
+/*	initStarTrek();
 	initStarWars();
-	initSuperHeros();
+	initSuperHeros();*/
 /*	initIndianaJones();
 	initHarryPotter();*/
-	initJohnWayne();
-	initJurassicPark();
+/*	initJohnWayne();
+	initJurassicPark();*/
 /*	initTremors();
 	initMenInBlack();
 	initMisc();*/
 };
-$(window).load(initMtime)
+/*$(window).load(initMtime)*/
+$(window).on("load", function () {
+	initMtime();
+});

@@ -74,8 +74,7 @@ var moviegoForm = `
 		<a id="voy7" href="#voy" class="ui-btn ui-corner-all">Season 7</a>
 		<a class="ui-btn ui-corner-all" data-rel="close">Close</a>
 	</div>
-	<div id="entPan" data-role='panel'>
-		<a id="ent1" href="#ent" class="ui-btn ui-corner-all">Season 1</a>	
+	<div id="entPan" data-role='panel'>	<a id="ent1" href="#ent" class="ui-btn ui-corner-all">Season 1</a>	
 		<a id="ent2" href="#ent" class="ui-btn ui-corner-all">Season 2</a>
 		<a id="ent3" href="#ent" class="ui-btn ui-corner-all">Season 3</a>
 		<a id="ent4" href="#ent" class="ui-btn ui-corner-all">Season 4</a>

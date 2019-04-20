@@ -8,7 +8,7 @@
 	// as published by the Free Software Foundation.
 	//
 	// This program is distributed in the hope that it will be useful,
- 	// but WITHOUT ANY WARRANTY; without even the implied warranty of
+	// but WITHOUT ANY WARRANTY; without even the implied warranty of
 	// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	// GNU General Public License for more details.
 	//
@@ -36,7 +36,7 @@ var moviegoForm = `
 <!DOCTYPE html>
 <html>
 <head>
-	<title>MovieTime</title>
+	<title>MovieGo</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link type="text/css" rel="stylesheet" href="static/css/jquery.mobile-1.4.5.min.css" />
 	<link type="text/css" rel="stylesheet" href="static/css/jquery.mobile.theme-1.4.5.min.css" />
@@ -98,26 +98,9 @@ var moviegoForm = `
 		<a class="ui-btn ui-corner-all" data-rel="close">Close</a>
 	</div>
 	
-<!--	<div id="playerPan" data-role="panel">
-		<a href="" id="PannextBtn" class="ui-btn ui-corner-all">Seek 60 >></a>
-		<a href="" id="PanpChapterBtn" class="ui-btn ui-corner-all">Prev Chapter</a>
-		<a href="" id="PannChapterBtn" class="ui-btn ui-corner-all">Next Chapter</a>
-		<a href="" id="PanprevBtn" class="ui-btn ui-corner-all"><< Seek 30</a>
-		<a class="ui-btn ui-corner-all" data-rel="close">Close</a>
-	</div>
--->
-	
-	
-	
-	
-	
-	
-	
-	
 	<div data-role="header" data-theme="b" data-position="fixed">
-	<!--	<a href="#" id="shutdownBtn" data-ajax='false' class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all">Power Off</a>-->
 		<a href="#updatePg" id="updateBtn" data-ajax='false' class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all">Update</a>
-		<h1 id="introH1">MovieTime</h1>
+		<h1 id="introH1">MovieGo</h1>
 	</div>
 	
 	<div data-role="tabs" id="tags">
@@ -135,7 +118,6 @@ var moviegoForm = `
 				<li><button id="pauseBtn" class="ui-btn ui-corner-all">Pause</button></li>
 				<li><button id="stopBtn" class="ui-btn ui-corner-all">Stop</button></li>
 			</ul>
-
 			<ul>
 				<li><button id="prevBtn" class="ui-btn ui-icon-carat-l ui-btn-icon-top ui-corner-all">Seek</button></li>
 				<li><button id="pChapterBtn" class="ui-btn ui-icon-carat-l ui-btn-icon-top ui-corner-all">Chapter</button></li>
@@ -186,7 +168,7 @@ var moviegoForm = `
 <!--	
 	<div data-role="header" data-theme="b" data-position="fixed">
 		<a href="#" id="updateBtn" data-ajax='false' class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all">Update</a>
-		<h1 id="introH1">MovieTime</h1>
+		<h1 id="introH1">MovieGo</h1>
 		<div data-role="navbar">
 			<ul>
 				<li><button id="pauseBtn" class="ui-btn ui-corner-all">Pause</button></li>

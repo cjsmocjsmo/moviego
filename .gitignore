@@ -1,4 +1,8 @@
+src/moviego/*.go~
+
+static/js/*.js~
 static/images/thumbnails/*.jpg
 static/images/thumbnails/*.png
+
 bin/moviego
 bin/moviegosetup

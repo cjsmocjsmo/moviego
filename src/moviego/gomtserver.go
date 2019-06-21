@@ -24,566 +24,13 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"html/template"
 	"encoding/json"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"github.com/gorilla/mux"
 	"moviego/lib"
 )
-
-
-var moviegoForm = `
-<!DOCTYPE html>
-<html>
-<head>
-	<title>MovieGo</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link type="text/css" rel="stylesheet" href="static/css/jquery.mobile-1.4.5.min.css" />
-	<link type="text/css" rel="stylesheet" href="static/css/jquery.mobile.theme-1.4.5.min.css" />
-	<link type="text/css" rel="stylesheet" href="static/css/movietime.css" />
-	<script src="static/js/jquery-2.1.4.min.js"></script>
-	<script src="static/js/jquery.mobile-1.4.5.min.js"></script>
-	<script src="static/js/movietime.js"></script>
-	<script src="static/js/movietime2.js"></script>
-</head>
-<body>
-<div class='amp' data-role="page" id="intro" data-theme="b">
-	<div id="sttvPan" data-role='panel'>
-		<a id="sttv1" href="#sttv" class="ui-btn ui-corner-all show-page-loading-msg">Season 1</a>	
-		<a id="sttv2" href="#sttv" class="ui-btn ui-corner-all show-page-loading-msg">Season 2</a>
-		<a id="sttv3" href="#sttv" class="ui-btn ui-corner-all show-page-loading-msg">Season 3</a>
-		<a class="ui-btn ui-corner-all" data-rel="close">Close</a>
-	</div>
-	<div id="tngPan" data-role='panel'>
-		<a id="tng1" href="#tng" class="ui-btn ui-corner-all">Season 1</a>	
-		<a id="tng2" href="#tng" class="ui-btn ui-corner-all">Season 2</a>
-		<a id="tng3" href="#tng" class="ui-btn ui-corner-all">Season 3</a>
-		<a id="tng4" href="#tng" class="ui-btn ui-corner-all">Season 4</a>	
-		<a id="tng5" href="#tng" class="ui-btn ui-corner-all">Season 5</a>
-		<a id="tng6" href="#tng" class="ui-btn ui-corner-all">Season 6</a>
-		<a id="tng7" href="#tng" class="ui-btn ui-corner-all">Season 7</a>
-		<a class="ui-btn ui-corner-all" data-rel="close">Close</a>
-	</div>
-	<div id="voyPan" data-role='panel'>
-		<a id="voy1" href="#voy" class="ui-btn ui-corner-all">Season 1</a>	
-		<a id="voy2" href="#voy" class="ui-btn ui-corner-all">Season 2</a>
-		<a id="voy3" href="#voy" class="ui-btn ui-corner-all">Season 3</a>
-		<a id="voy4" href="#voy" class="ui-btn ui-corner-all">Season 4</a>	
-		<a id="voy5" href="#voy" class="ui-btn ui-corner-all">Season 5</a>
-		<a id="voy6" href="#voy" class="ui-btn ui-corner-all">Season 6</a>
-		<a id="voy7" href="#voy" class="ui-btn ui-corner-all">Season 7</a>
-		<a class="ui-btn ui-corner-all" data-rel="close">Close</a>
-	</div>
-	<div id="entPan" data-role='panel'>	<a id="ent1" href="#ent" class="ui-btn ui-corner-all">Season 1</a>	
-		<a id="ent2" href="#ent" class="ui-btn ui-corner-all">Season 2</a>
-		<a id="ent3" href="#ent" class="ui-btn ui-corner-all">Season 3</a>
-		<a id="ent4" href="#ent" class="ui-btn ui-corner-all">Season 4</a>
-		<a class="ui-btn ui-corner-all" data-rel="close">Close</a>
-	</div>
-	<div id="disPan" data-role='panel'>
-		<a id="dis1" href="#dis" class="ui-btn ui-corner-all">Season 1</a>	
-		<a id="dis2" href="#dis" class="ui-btn ui-corner-all">Season 2</a>
-		<a class="ui-btn ui-corner-all" data-rel="close">Close</a>
-	</div>
-	<div id="orvPan" data-role='panel'>
-		<a id="orv1" href="#orv" class="ui-btn ui-corner-all">Season 1</a>	
-		<a id="orv2" href="#orv" class="ui-btn ui-corner-all">Season 2</a>
-		<a class="ui-btn ui-corner-all" data-rel="close">Close</a>
-	</div>
-	<div id="tlsPan" data-role="panel">
-		<a id="tls1" href="#tls" class="ui-btn ui-corner-all">Season 1</a>
-		<a id="tls2" href="#tls" class="ui-btn ui-corner-all">Season 2</a>
-		<a id="tls3" href="#tls" class="ui-btn ui-corner-all">Season 3</a>
-		<a id="tls4" href="#tls" class="ui-btn ui-corner-all">Season 4</a>
-		<a class="ui-btn ui-corner-all" data-rel="close">Close</a>
-	</div>
-	
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<a href="#updatePg" id="updateBtn" data-ajax='false' class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all">Update</a>
-		<h1 id="introH1">MovieGo</h1>
-	</div>
-	
-	<div data-role="tabs" id="tags">
-		<div data-role="navbar">
-			<ul>
-				<li><a href="#Moovs" data-ajax="false"><img id="movimg" src="static/images/movie-7.png"></img></a></li>
-<!--				<li><a href="http://192.168.1.102:8080/ampnado" data-ajax='false'>Music</a></li>-->
-				<li><a href="#TVVs" data-ajax="false"><img id="tvimg" src="static/images/tv.png"></img></a></li>
-			</ul>
-		</div>
-		<a href="" id="playerPanBtn" class="ui-btn ui-corner-all">Player Controls</a>
-		<div id="playerControls" data-role="navbar">
-			<ul>
-				<li><button id="playBtn" class="ui-btn ui-corner-all">Play</button></li>
-				<li><button id="pauseBtn" class="ui-btn ui-corner-all">Pause</button></li>
-				<li><button id="stopBtn" class="ui-btn ui-corner-all">Stop</button></li>
-			</ul>
-			<ul>
-				<li><button id="prevBtn" class="ui-btn ui-icon-carat-l ui-btn-icon-top ui-corner-all">Seek</button></li>
-				<li><button id="pChapterBtn" class="ui-btn ui-icon-carat-l ui-btn-icon-top ui-corner-all">Chapter</button></li>
-				<li><button id="nChapterBtn" class="ui-btn ui-icon-carat-r ui-btn-icon-top ui-corner-all">Chapter</button></li>
-				<li><button id="nextBtn" class="ui-btn ui-icon-carat-r ui-btn-icon-top ui-corner-all">Seek</button></li>
-			</ul>
-		</div>
-
-		
-		
-<!--		<a href="#" data-role="button" data-inline='true' id="playBtn">Play</button>
-		<a href="#" data-role="button" data-inline='true' id="pauseBtn">Pause</button>
-		<a href="#" data-role="button" data-inline='ture' id="stopBtn">Stop</a>
-		<a href-"#" data-role="button" data-inline='true' id="nextBtn">Next</button>
-		<a href="#" data-role="button" data-inline='true' id="prevBtn">Previous</button>-->
-		<div id="Moovs" class="ui-body-d ui-content">
-			<a id="actionBtn" href="#action" class="ui-btn ui-corner-all show-page-loading-msg">Action</a>
-			<a id="cartoonsBtn" href="#cartoons" class="ui-btn ui-corner-all show-page-loading-msg">Cartoons</a>
-			<a id="comedyBtn" href="#comedy" class="ui-btn ui-corner-all show-page-loading-msg">Comedy</a>
-			<a id="dramaBtn" href="#drama" class="ui-btn ui-corner-all show-page-loading-msg">Drama</a>
-			<a id="godzillaBtn" href="#godzilla" class="ui-btn ui-corner-all show-page-loading-msg">Godzilla</a>
-			<a id="harrypotterBtn" href="#harrypotter" class="ui-btn ui-corner-all show-page-loading-msg">Harry Potter</a>
-			<a id="indianajonesBtn" href="#indianajones" class="ui-btn ui-corner-all show-page-loading-msg">Indiana Jones</a>
-			<a id="johnwayneBtn" href="#johnwayne" class="ui-btn ui-corner-all show-page-loading-msg">John Wayne</a>
-			<a id="jurassicparkBtn" href="#jurassicpark" class="ui-btn ui-corner-all show-page-loading-msg">Jurassic Park</a>
-			<a id="kingsmanBtn" href="#kingsman" class="ui-btn ui-corner-all show-page-loading-msg">KingsMan</a>
-			<a id="meninblackBtn" href="#meninblack" class="ui-btn ui-corner-all">Men In Black</a>
-			<a id="scifiBtn" href="#scifi" class="ui-btn ui-corner-all show-page-loading-msg">SciFi</a>
-			<a id="startrekMBtn" href="#startrekM" class="ui-btn ui-corner-all show-page-loading-msg">Star Trek</a>
-			<a id="starwarsBtn" href="#starwars" class="ui-btn ui-corner-all show-page-loading-msg">Star Wars</a>
-			<a id="superherosBtn" href="#superheros" class="ui-btn ui-corner-all show-page-loading-msg">Super Heros</a>
-			<a id="tremorsBtn" href="#tremors" class="ui-btn ui-corner-all show-page-loading-msg">Tremors</a>
-			<a id="miscBtn" href="#misc" class="ui-btn ui-corner-all show-page-loading-msg">Misc</a>
-		</div>
-		<div id="TVVs" class="ui-body-d ui-content">
-			<a href="#sttvPan" class="ui-btn ui-corner-all">Star Trek</a>
-			<a href="#tngPan" class="ui-btn ui-corner-all">The Next Generation</a>
-			<a href="#voyPan" class="ui-btn ui-corner-all">Voyager</a>
-			<a href="#entPan" class="ui-btn ui-corner-all">Enterprise</a>
-			<a href="#disPan" class="ui-btn ui-corner-all">Discovery</a>
-			<a href="#orvPan" class="ui-btn ui-corner-all">Orville</a>
-			<a href="#tlsPan" class="ui-btn ui-corner-all">The Last Ship</a>
-		</div>
-	</div>
-</div>
-
-
-<!--	
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<a href="#" id="updateBtn" data-ajax='false' class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all">Update</a>
-		<h1 id="introH1">MovieGo</h1>
-		<div data-role="navbar">
-			<ul>
-				<li><button id="pauseBtn" class="ui-btn ui-corner-all">Pause</button></li>
-				<li><button id="stopBtn" class="ui-btn ui-corner-all">Stop</button></li>
-				<li><button id="nextBtn" class="ui-btn ui-corner-all">Next</button></li>
-				<li><button id="prevBtn" class="ui-btn ui-corner-all">Previous</button></li>
-			</ul>		
-		</div>
-	</div>
-	<div id="Moovs" class="ui-grid-a">
-		<div class="ui-block-a">
-		
-			<a href="#action" class="ui-btn ui-corner-all">Action</a>
-			<a href="#cartoons" class="ui-btn ui-corner-all">Cartoons</a>
-			<a href="#comedy" class="ui-btn ui-corner-all">Comedy</a>
-			
-			<a href="#drama" class="ui-btn ui-corner-all">Drama</a>
-			
-			<a href="#godzilla" class="ui-btn ui-corner-all">Godzilla</a>
-			<a href="#harrypotter" class="ui-btn ui-corner-all">Harry Potter</a>
-			<a href="#indianajones" class="ui-btn ui-corner-all">Indiana Jones</a>
-			<a href="#johnwayne" class="ui-btn ui-corner-all">John Wayne</a>
-			<a href="#jurassicpark" class="ui-btn ui-corner-all">Jurassic Park</a>
-			<a href="#kingsman" class="ui-btn ui-corner-all">KingsMan</a>
-			<a href="#meninblack" class="ui-btn ui-corner-all">Men In Black</a>
-			<a href="#scifi" class="ui-btn ui-corner-all">SciFi</a>
-			<a href="#startrekM" class="ui-btn ui-corner-all">Star Trek</a>
-			<a href="#starwars" class="ui-btn ui-corner-all">Star Wars</a>
-			<a href="#superheros" class="ui-btn ui-corner-all">Super Heros</a>
-			<a href="#tremors" class="ui-btn ui-corner-all">Tremors</a>
-			<a href="#misc" class="ui-btn ui-corner-all">Misc</a>
-		</div>
-		<div class="ui-block-b">
-			<a href="#sttvPan" class="ui-btn ui-corner-all">Star Trek</a>
-			<a href="#tngPan" class="ui-btn ui-corner-all">The Next Generation</a>
-			<a href="#voyPan" class="ui-btn ui-corner-all">Voyager</a>
-			<a href="#entPan" class="ui-btn ui-corner-all">Enterprise</a>
-			<a href="#disPan" class="ui-btn ui-corner-all">Discovery</a>
-			<a href="#orvPan" class="ui-btn ui-corner-all">Orville</a>
-			<a href="#tlsPan" class="ui-btn ui-corner-all">The Last Ship</a>
-		</div>
-	</div>
-</div>
--->
-
-
-<div data-role="page" id="updatePg" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-<!--		<div data-role="navbar">
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>			
-			</ul>
-		</div>-->
-	</div>
-	<div id='updateMain' role='main' class='ui-content' data-theme='b'>
-		<span id="update1">Updating and adding new content</span>
-		<span id="update2">Update is complete</span>
-		<a href="#intro" id="doneBtn" class="ui-btn ui-corner-all">Done</a>
-	</div>		
-</div>
-
-
-
-
-
-<div data-role="page" id="scifi" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-		<div data-role="navbar">
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>			
-			</ul>
-		</div>
-	</div>
-	<div id='scifiMain' role='main' class='ui-content' data-theme='b'>
-	</div>		
-</div>
-
-
-
-
-
-<div data-role="page" id="action" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-		<div data-role="navbar">
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>			
-			</ul>
-		</div>
-	</div>
-	<div id='actionMain' role='main' class='ui-content' data-theme='b'>
-	</div>		
-</div>
-
-
-
-<div data-role="page" id="comedy" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-		<div data-role="navbar">
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>			
-			</ul>
-		</div>
-	</div>
-	<div id='comedyMain' role='main' class='ui-content' data-theme='b'>
-	</div>		
-</div>
-
-
-
-
-<div data-role="page" id="drama" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-		<div data-role="navbar">
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>			
-			</ul>
-		</div>
-	</div>
-	<div id='dramaMain' role='main' class='ui-content' data-theme='b'>
-	</div>		
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div data-role="page" id="cartoons" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-		<div data-role="navbar">
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>			
-			</ul>
-		</div>
-	</div>
-	<div id="cartoonsMain" role="main" class="ui-content">
-	</div>
-</div>
-
-<div data-role="page" id="kingsman" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-		<div data-role="navbar">
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>			
-			</ul>
-		</div>
-	</div>
-	<div id="kingsmanMain" role="main" class="ui-content">
-	</div>
-</div>
-
-<div data-role="page" id="godzilla" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-		<div data-role="navbar">
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>			
-			</ul>
-		</div>
-	</div>
-	<div id="godzillaMain" role="main" class="ui-content">
-	</div>
-</div>
-
-<div data-role="page" id="startrekM" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-		<div data-role="navbar">
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>			
-			</ul>
-		</div>
-	</div>
-	<div id="startrekMain" role="main" class="ui-content">
-	</div>
-</div>
-
-<div data-role="page" id="starwars" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-		<div data-role="navbar">
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>			
-			</ul>
-		</div>
-	</div>
-	<div id="starwarsMain" role="main" class="ui-content">
-	</div>
-</div>
-
-<div class='amp' data-role="page" id="superheros" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-		<div data-role='navbar'>
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>
-			</ul>
-		</div>	
-	</div> 
-	<div id="superherosMain" role="main" class="ui-content" data-theme="b">
-	</div>
-</div>
-
-<div data-role="page" id="sttv" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-		<div data-role='navbar'>
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>
-			</ul>
-		</div>
-	</div>
-	<div id="sttvMain" role="main" class="ui-content" data-theme="b">
-	</div>
-</div>
-
-<div class='amp' data-role="page" id="harrypotter" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-		<div data-role='navbar'>
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>
-			</ul>
-		</div>	
-	</div> 
-	<div id="harrypotterMain" role="main" class="ui-content" data-theme="b">
-	</div>
-</div>
-
-<div class='amp' data-role="page" id="indianajones" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-		<div data-role='navbar'>
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>
-			</ul>
-		</div>	
-	</div> 
-	<div id="indianajonesMain" role="main" class="ui-content" data-theme="b">
-	</div>
-</div>
-
-<div class='amp' data-role="page" id="jurassicpark" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-		<div data-role='navbar'>
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>
-			</ul>
-		</div>	
-	</div> 
-	<div id="jurassicparkMain" role="main" class="ui-content" data-theme="b">
-	</div>
-</div>
-
-<div class='amp' data-role="page" id="meninblack" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-		<div data-role='navbar'>
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>
-			</ul>
-		</div>	
-	</div> 
-	<div id="meninblackMain" role="main" class="ui-content" data-theme="b">
-	</div>
-</div>
-
-
-<div class='amp' data-role="page" id="tremors" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-		<div data-role='navbar'>
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>
-			</ul>
-		</div>	
-	</div> 
-	<div id="tremorsMain" role="main" class="ui-content" data-theme="b">
-	</div>
-</div>
-
-<div class='amp' data-role="page" id="johnwayne" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-		<div data-role='navbar'>
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>
-			</ul>
-		</div>	
-	</div> 
-	<div id="johnwayneMain" role="main" class="ui-content" data-theme="b">
-	</div>
-</div>
-
-<div class='amp' data-role="page" id="misc" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-		<div data-role='navbar'>
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>
-			</ul>
-		</div>	
-	</div> 
-	<div id="miscMain" role="main" class="ui-content" data-theme="b">
-	</div>
-</div>
-
-<div data-role="page" id="tng" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-		<div data-role='navbar'>
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>
-			</ul>
-		</div>
-	</div>
-	<div id="tngMain" role="main" class="ui-content" data-theme="b">
-	</div>
-</div>
-<div data-role="page" id="voy" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-		<div data-role='navbar'>
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>
-			</ul>
-		</div>
-	</div>
-	<div id="voyMain" role="main" class="ui-content" data-theme="b">
-
-	</div>
-</div>
-<div data-role="page" id="ent" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-		<div data-role='navbar'>
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>
-			</ul>
-		</div>
-	</div>
-	<div id="entMain" role="main" class="ui-content" data-theme="b">
-
-	</div>
-</div>
-<div data-role="page" id="dis" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-		<div data-role='navbar'>
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>
-			</ul>
-		</div>
-	</div>
-	<div id="disMain" role="main" class="ui-content" data-theme="b">
-
-	</div>
-</div>
-<div data-role="page" id="orv" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-		<div data-role='navbar'>
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>
-			</ul>
-		</div>
-	</div>
-	<div id="orvMain" role="main" class="ui-content" data-theme="b">
-
-	</div>
-</div>
-<div data-role="page" id="tls" data-theme="b">
-	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>MovieTime</h1>
-		<div data-role='navbar'>
-			<ul>
-				<li><a href="#intro" data-theme='a'>Home</a></li>
-			</ul>
-		</div>
-	</div>
-	<div id="tlsMain" role="main" class="ui-content" data-theme="b">
-
-	</div>
-</div>
-
-
-
-
-
-</div>
-`
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -599,7 +46,10 @@ func DBcon() *mgo.Session {
 }
 
 func ShowMovieGo(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "%s", moviegoForm)
+    tmppath := "/home/pi/GoBuild/moviego/static/template/movietime.template"
+    tmpl := template.Must(template.ParseFiles(tmppath))
+    tmpl.Execute(w, tmpl)
+	
 }
 
 func IntActionHandler(w http.ResponseWriter, r *http.Request) {
@@ -613,6 +63,7 @@ func IntActionHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(ActionMedia)
 }
@@ -628,7 +79,7 @@ func IntCartoonsHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)	
 	}
-
+    w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(CartoonMedia)
 }
@@ -644,6 +95,7 @@ func IntComedyHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(ComedyMedia)
 }
@@ -659,6 +111,7 @@ func IntDramaHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(DramaMedia)
 }
@@ -674,6 +127,7 @@ func IntGodzillaHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(GodzillaMedia)
 }
@@ -689,6 +143,7 @@ func IntIndianaJonesHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(IndianaJonesMedia)
 }
@@ -704,6 +159,7 @@ func IntJohnWayneHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(JohnWayneMedia)
 }
@@ -719,6 +175,7 @@ func IntJurassicParkHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(JurassicParkMedia)
 }
@@ -734,6 +191,7 @@ func IntKingsManHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(KingsmanMedia)
 }
@@ -749,6 +207,7 @@ func IntHarryPotterHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(HarryPotterMedia)
 }
@@ -764,6 +223,7 @@ func IntMenInBlackHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(MenInBlackMedia)
 }
@@ -779,6 +239,7 @@ func IntMiscHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(MiscMedia)
 }
@@ -794,6 +255,7 @@ func IntSciFiHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(SciFiMedia)
 }
@@ -809,6 +271,7 @@ func IntStarTrekHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(StarTrekMedia)
 }
@@ -824,6 +287,7 @@ func IntStarWarsHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(StarWarsMedia)
 }
@@ -839,6 +303,7 @@ func IntSuperHerosHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(SuperHerosMedia)
 }
@@ -854,6 +319,7 @@ func IntTremorsHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(TremorsMedia)
 }
@@ -869,6 +335,7 @@ func STTVS1Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(STTVS1Media)
 }
@@ -884,6 +351,7 @@ func STTVS2Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(STTVS2Media)
 }
@@ -899,6 +367,7 @@ func STTVS3Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(STTVS3Media)
 }
@@ -914,6 +383,7 @@ func TNGS1Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(TNGS1Media)
 }
@@ -929,6 +399,7 @@ func TNGS2Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(TNGS2Media)
 }
@@ -944,6 +415,7 @@ func TNGS3Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(TNGS3Media)
 }
@@ -959,6 +431,7 @@ func TNGS4Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(TNGS4Media)
 }
@@ -974,6 +447,7 @@ func TNGS5Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(TNGS5Media)
 }
@@ -989,6 +463,7 @@ func TNGS6Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(TNGS6Media)
 }
@@ -1004,6 +479,7 @@ func TNGS7Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(TNGS7Media)
 }
@@ -1019,6 +495,7 @@ func VOYS1Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(VOYS1Media)
 }
@@ -1034,6 +511,7 @@ func VOYS2Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(VOYS2Media)
 }
@@ -1049,6 +527,7 @@ func VOYS3Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(VOYS3Media)
 }
@@ -1064,6 +543,7 @@ func VOYS4Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(VOYS4Media)
 }
@@ -1079,6 +559,7 @@ func VOYS5Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(VOYS5Media)
 }
@@ -1094,6 +575,7 @@ func VOYS6Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(VOYS6Media)
 }
@@ -1109,6 +591,7 @@ func VOYS7Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(VOYS7Media)
 }
@@ -1124,6 +607,7 @@ func ENTS1Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(ENTS1Media)
 }
@@ -1139,6 +623,7 @@ func ENTS2Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(ENTS2Media)
 }
@@ -1154,6 +639,7 @@ func ENTS3Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(ENTS3Media)
 }
@@ -1169,6 +655,7 @@ func ENTS4Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(ENTS4Media)
 }
@@ -1190,6 +677,7 @@ func DISS1Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(DISS1Media)
 }
@@ -1205,6 +693,7 @@ func ORVS1Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(ORVS1Media)
 }
@@ -1220,6 +709,7 @@ func TLSS1Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(TLSS1Media)
 }
@@ -1235,6 +725,7 @@ func TLSS2Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(TLSS2Media)
 }
@@ -1250,6 +741,7 @@ func TLSS3Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(TLSS3Media)
 }
@@ -1265,6 +757,7 @@ func TLSS4Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(TLSS4Media)
 }
